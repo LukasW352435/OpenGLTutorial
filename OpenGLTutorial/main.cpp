@@ -17,8 +17,6 @@ int WinMain(int argc, char** argv) {
 #pragma endregion
 	SDL_Window* window;
 	SDL_Init(SDL_INIT_EVERYTHING);
-	window = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -27,17 +25,22 @@ int WinMain(int argc, char** argv) {
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+	window = SDL_CreateWindow("OpenGL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+
+	GLenum err = glewInit();
+	if (err != GLEW_OK) {
+		std::cout << "Error: " << glewGetErrorString(err) << std::endl;
+		std::cin.get();
+		return EXIT_FAILURE;
+	}
+	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+
 	bool close = false;
+	glClearColor(0, 0, 0, 1);
 	while (!close)
 	{
-		glClearColor(1, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		glBegin(GL_TRIANGLES);
-		glVertex2f(-0.5, -0.5);
-		glVertex2f(0, 0.5);
-		glVertex2f(0.5, -0.5);
-		glEnd();
 
 		SDL_GL_SwapWindow(window);
 
