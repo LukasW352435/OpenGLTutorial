@@ -8,11 +8,7 @@
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
-struct Vertex {
-	float x;
-	float y;
-	float z;
-};
+#include "vertex_buffer.h"
 
 #pragma region int main(int argc, char** argv)
 #ifdef _DEBUG
@@ -50,21 +46,17 @@ int WinMain(int argc, char** argv) {
 
 	uint32_t numVertices = 3;
 
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), vertices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, x));
-
+	VertexBuffer vertexBuffer(vertices, numVertices);
+	
 	bool close = false;
 	while (!close)
 	{
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		vertexBuffer.bind();
 		glDrawArrays(GL_TRIANGLES, 0, numVertices);
+		vertexBuffer.unbind();
 
 		SDL_GL_SwapWindow(window);
 
