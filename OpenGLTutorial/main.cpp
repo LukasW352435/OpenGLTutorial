@@ -9,12 +9,15 @@
 #pragma comment(lib, "opengl32.lib")
 
 #include "vertex_buffer.h"
+#include "shader.h"
 
 #pragma region int main(int argc, char** argv)
 #ifdef _DEBUG
 int main(int argc, char** argv) {
 #else
-int WinMain(int argc, char** argv) {
+//extern "C" int WinMain(int argc, char** argv) {
+#include <Windows.h>
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow){
 #endif // _DEBUG
 #pragma endregion
 	SDL_Window* window;
@@ -47,6 +50,9 @@ int WinMain(int argc, char** argv) {
 	uint32_t numVertices = 3;
 
 	VertexBuffer vertexBuffer(vertices, numVertices);
+
+	Shader shader("basic.vert", "basic.frag");
+	shader.bind();
 	
 	bool close = false;
 	while (!close)
