@@ -155,6 +155,7 @@
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="index_buffer.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="vertex_buffer.h" />
   </ItemGroup>

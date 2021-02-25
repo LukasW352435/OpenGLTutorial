@@ -9,6 +9,7 @@
 #pragma comment(lib, "opengl32.lib")
 
 #include "vertex_buffer.h"
+#include "index_buffer.h"
 #include "shader.h"
 
 #pragma region int main(int argc, char** argv)
@@ -54,8 +55,15 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		Vertex{0.5, -0.5, 0, 0, 0, 1, 1},
 		Vertex{0.5, 0.5, 0, 1, 0, 0, 1},
 	};
-
 	uint32_t numVertices = 4;
+
+	uint32_t indices[] = {
+		0, 1, 2,
+		1, 2, 3
+	};
+	uint32_t numIndices = 6;
+
+	IndexBuffer indexBuffer(indices, numIndices, sizeof(uint32_t));
 
 	VertexBuffer vertexBuffer(vertices, numVertices);
 
@@ -77,8 +85,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		vertexBuffer.bind();
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, numVertices);
-		vertexBuffer.unbind();
+		indexBuffer.bind();
+		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
 		SDL_GL_SwapWindow(window);
 
