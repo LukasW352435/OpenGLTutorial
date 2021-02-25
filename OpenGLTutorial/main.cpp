@@ -50,11 +50,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	Vertex vertices[] = {
 		Vertex{-0.5, -0.5, 0, 1, 0, 0, 1},
-		Vertex{0, 0.5, 0, 0, 1, 0, 1},
+		Vertex{-0.5, 0.5, 0, 0, 1, 0, 1},
 		Vertex{0.5, -0.5, 0, 0, 0, 1, 1},
+		Vertex{0.5, 0.5, 0, 1, 0, 0, 1},
 	};
 
-	uint32_t numVertices = 3;
+	uint32_t numVertices = 4;
 
 	VertexBuffer vertexBuffer(vertices, numVertices);
 
@@ -76,7 +77,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		vertexBuffer.bind();
-		glDrawArrays(GL_TRIANGLES, 0, numVertices);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, numVertices);
 		vertexBuffer.unbind();
 
 		SDL_GL_SwapWindow(window);
