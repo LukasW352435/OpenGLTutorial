@@ -157,11 +157,15 @@
   <ItemGroup>
     <ClInclude Include="index_buffer.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="vertex_buffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.frag" />
     <None Include="basic.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="redSmoke.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

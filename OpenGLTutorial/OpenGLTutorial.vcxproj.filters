@@ -16,6 +16,12 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{37fe5115-664a-4e35-a0b1-6a3af1f01e4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{2f69bdb6-3db2-4a17-9214-7027ac0f50a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{9d1bc4fd-6005-455b-9cc1-92a8539b4a00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -35,6 +41,9 @@
     <ClInclude Include="index_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>libs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.frag">
@@ -43,5 +52,10 @@
     <None Include="basic.vert">
       <Filter>shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="redSmoke.png">
+      <Filter>graphics</Filter>
+    </Image>
   </ItemGroup>
 </Project>

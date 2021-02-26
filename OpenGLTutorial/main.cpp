@@ -8,6 +8,9 @@
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
@@ -81,6 +84,27 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	VertexBuffer vertexBuffer(vertices, numVertices);
 
+	int32_t textureWidth = 0;
+	int32_t textureHeight = 0;
+	int32_t bitsPerPixel = 0;
+	stbi_set_flip_vertically_on_load(true);
+	auto textureBuffer = stbi_load("redSmoke.png", &textureWidth, &textureHeight, &bitsPerPixel, 4);
+	
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureBuffer);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	if (textureBuffer) {
+		stbi_image_free(textureBuffer);
+	}
+
 	Shader shader("basic.vert", "basic.frag");
 	shader.bind();
 	
@@ -127,8 +151,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		uint64_t counterElapse = endCounter - lastCounter;
 		delta = (float)counterElapse / (float)perfCounterFrequency;
 		uint32_t FPS = (uint32_t)((float)perfCounterFrequency / (float)counterElapse);
-		std::cout << "FPS: " << FPS << std::endl;
+		//std::cout << "FPS: " << FPS << std::endl;
 		lastCounter = endCounter;
 	}
+
+	glDeleteTextures(1, &textureId);
+
 	return 0;
 }
