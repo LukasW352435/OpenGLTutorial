@@ -12,6 +12,10 @@
 #include "index_buffer.h"
 #include "shader.h"
 
+void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParm) {
+	std::cout << "[OpenGL Error] " << message << std::endl;
+}
+
 #pragma region int main(int argc, char** argv)
 #ifdef _DEBUG
 int main(int argc, char** argv) {
@@ -31,6 +35,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+#ifdef _DEBUG
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif // _DEBUG
+
 	uint32_t flags = SDL_WINDOW_OPENGL;
 #pragma region Release window flags
 #ifndef _DEBUG
@@ -48,6 +56,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		return EXIT_FAILURE;
 	}
 	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+
+#ifdef _DEBUG
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback(openGLDebugCallback, nullptr);
+#endif // _DEBUG
 
 	Vertex vertices[] = {
 		Vertex{-0.5, -0.5, 0, 1, 0, 0, 1},
