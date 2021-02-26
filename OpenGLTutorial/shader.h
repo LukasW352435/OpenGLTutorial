@@ -8,6 +8,7 @@ struct Shader {
 
 	void bind();
 	void unbind();
+	GLuint getShaderId();
 private:
 	GLuint compile(std::string shaderSource, GLenum type);
 	std::string parse(const char* filename);

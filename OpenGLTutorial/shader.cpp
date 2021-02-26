@@ -18,6 +18,10 @@ void Shader::unbind() {
 	glUseProgram(0);
 }
 
+GLuint Shader::getShaderId() {
+	return shaderId;
+}
+
 GLuint Shader::compile(std::string shaderSource, GLenum type) {
 	GLuint id = glCreateShader(type);
 	const char* src = shaderSource.c_str();
@@ -45,7 +49,7 @@ std::string Shader::parse(const char* filename) {
 #pragma warning(default: 4996)
 	if (file == nullptr) {
 		std::cout << "File " << filename << " not found" << std::endl;
-		return nullptr;
+		return std::string();
 	}
 
 	std::string contents;

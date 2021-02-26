@@ -88,11 +88,22 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	uint64_t lastCounter = SDL_GetPerformanceCounter() ;
 	float delta = 0;
 
+	int colorUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_color");
+	if (colorUniformLocation != -1) {
+		glUniform4f(colorUniformLocation, 1, 0, 1, 1);
+	}
+
+	float time = 0;
 	bool close = false;
 	while (!close)
 	{
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
+		time += delta;
+
+		if (colorUniformLocation != -1) {
+			glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 0, 1, 1);
+		}
 
 		// wire frame mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
