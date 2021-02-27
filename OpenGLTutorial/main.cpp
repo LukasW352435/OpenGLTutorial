@@ -67,10 +67,18 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 #endif // _DEBUG
 
 	Vertex vertices[] = {
-		Vertex{-0.5, -0.5, 0, 1, 0, 0, 1},
-		Vertex{-0.5, 0.5, 0, 0, 1, 0, 1},
-		Vertex{0.5, -0.5, 0, 0, 0, 1, 1},
-		Vertex{0.5, 0.5, 0, 1, 0, 0, 1},
+		Vertex{-0.5, -0.5, 0, 
+		0, 0, 
+		1, 0, 0, 1},
+		Vertex{-0.5, 0.5, 0,
+		0, 1,
+		0, 1, 0, 1},
+		Vertex{0.5, -0.5, 0, 
+		1, 0,
+		0, 0, 1, 1},
+		Vertex{0.5, 0.5, 0, 
+		1, 1,
+		1, 0, 0, 1},
 	};
 	uint32_t numVertices = 4;
 
@@ -117,6 +125,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		glUniform4f(colorUniformLocation, 1, 0, 1, 1);
 	}
 
+	int textureUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_texture");
+	if (textureUniformLocation != -1) {
+		glUniform1i(textureUniformLocation, 0);
+	}
+
 	float time = 0;
 	bool close = false;
 	while (!close)
@@ -126,7 +139,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		time += delta;
 
 		if (colorUniformLocation != -1) {
-			glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 0, 1, 1);
+			glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
 		}
 
 		// wire frame mode
@@ -135,6 +148,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 		vertexBuffer.bind();
 		indexBuffer.bind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
 		SDL_GL_SwapWindow(window);
