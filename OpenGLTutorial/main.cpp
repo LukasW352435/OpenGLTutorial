@@ -11,6 +11,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "../dependencies/glm/glm.hpp"
+#include "../dependencies/glm/ext/matrix_transform.hpp"
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
@@ -120,6 +122,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	uint64_t lastCounter = SDL_GetPerformanceCounter() ;
 	float delta = 0;
 
+	glm::mat4 model = glm::mat4(1);
+	model = glm::scale(model, glm::vec3(1.2f));
+	int modelMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_model");
+
 	int colorUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_color");
 	if (colorUniformLocation != -1) {
 		glUniform4f(colorUniformLocation, 1, 0, 1, 1);
@@ -142,12 +148,17 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 			glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
 		}
 
+		model = glm::rotate(model, 1 * delta, glm::vec3(0, 1, 0));
+
 		// wire frame mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		vertexBuffer.bind();
 		indexBuffer.bind();
+		if (modelMatrixLocation != -1) {
+			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
+		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureId);
 		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
