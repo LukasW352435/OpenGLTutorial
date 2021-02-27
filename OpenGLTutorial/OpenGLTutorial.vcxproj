@@ -189,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="redSmoke.png" />
+    <Image Include="yellow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,6 +13,7 @@
 
 #include "../dependencies/glm/glm.hpp"
 #include "../dependencies/glm/ext/matrix_transform.hpp"
+#include "../dependencies/glm/gtc/matrix_transform.hpp"
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
@@ -69,18 +70,22 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 #endif // _DEBUG
 
 	Vertex vertices[] = {
-		Vertex{-0.5, -0.5, 0, 
-		0, 0, 
-		1, 0, 0, 1},
-		Vertex{-0.5, 0.5, 0,
-		0, 1,
-		0, 1, 0, 1},
-		Vertex{0.5, -0.5, 0, 
-		1, 0,
-		0, 0, 1, 1},
-		Vertex{0.5, 0.5, 0, 
-		1, 1,
-		1, 0, 0, 1},
+		Vertex{
+			-0.5, -0.5, 0, 
+			0, 0, 
+			1, 0, 0, 1},
+		Vertex{
+			-0.5, 0.5, 0,
+			0, 1,
+			0, 1, 0, 1},
+		Vertex{
+			0.5, -0.5, 0, 
+			1, 0,
+			0, 0, 1, 1},
+		Vertex{
+			0.5, 0.5, 0, 
+			1, 1,
+			1, 0, 0, 1},
 	};
 	uint32_t numVertices = 4;
 
@@ -98,7 +103,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	int32_t textureHeight = 0;
 	int32_t bitsPerPixel = 0;
 	stbi_set_flip_vertically_on_load(true);
-	auto textureBuffer = stbi_load("redSmoke.png", &textureWidth, &textureHeight, &bitsPerPixel, 4);
+	auto textureBuffer = stbi_load("yellow.png", &textureWidth, &textureHeight, &bitsPerPixel, 4);
 	
 	GLuint textureId;
 	glGenTextures(1, &textureId);
@@ -124,7 +129,13 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	glm::mat4 model = glm::mat4(1);
 	model = glm::scale(model, glm::vec3(1.2f));
-	int modelMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_model");
+	// orthogonal projection
+	// glm::mat4 projection = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -10.0f, 100.0f);
+	// perspective projection
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
+	glm::mat4 modelViewProj = projection * view * model;
+	int modelViewProjMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_modelViewProj");
 
 	int colorUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_color");
 	if (colorUniformLocation != -1) {
@@ -145,10 +156,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		time += delta;
 
 		if (colorUniformLocation != -1) {
-			glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
+			//glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
 		}
 
-		model = glm::rotate(model, 1 * delta, glm::vec3(0, 1, 0));
+		model = glm::rotate(model, 1 * delta, glm::vec3(0.0f, 1.0f, 0.0f));
+		modelViewProj = projection * view * model;
 
 		// wire frame mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -156,8 +168,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 		vertexBuffer.bind();
 		indexBuffer.bind();
-		if (modelMatrixLocation != -1) {
-			glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &model[0][0]);
+		if (modelViewProjMatrixLocation != -1) {
+			glUniformMatrix4fv(modelViewProjMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]);
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureId);

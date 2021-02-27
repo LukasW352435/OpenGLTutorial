@@ -126,5 +126,8 @@
     <Image Include="redSmoke.png">
       <Filter>graphics</Filter>
     </Image>
+    <Image Include="yellow.png">
+      <Filter>graphics</Filter>
+    </Image>
   </ItemGroup>
 </Project>
