@@ -17,6 +17,7 @@
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
+#include "camera.h"
 
 void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParm) {
 	std::cout << "[OpenGL Error] " << message << std::endl;
@@ -133,14 +134,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	glm::mat4 model = glm::mat4(1);
 	model = glm::scale(model, glm::vec3(1.2f));
-	bool ortho = false;
-	// orthogonal projection
-	glm::mat4 orthogonal = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -10.0f, 100.0f);
-	// perspective projection
-	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-	glm::mat4 projection = perspective;
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
-	glm::mat4 modelViewProj = projection * view * model;
+
+	Camera camera(90, 800.0f, 600.0f);
+	camera.translate(glm::vec3(0.0f, 0.0f, 5.0f));
+	camera.update();
+
+	glm::mat4 modelViewProj = camera.getViewProj() * model;
 	int modelViewProjMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_modelViewProj");
 
 	int colorUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_color");
@@ -155,6 +154,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	float time = 0;
 	bool close = false;
+	bool buttonW = false;
+	bool buttonS = false;
+	bool buttonA = false;
+	bool buttonD = false;
 	while (!close)
 	{
 		SDL_Event event;
@@ -167,15 +170,41 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 				if (event.key.keysym.sym == SDLK_ESCAPE) {
 					close = true;
 				}
-				if (event.key.keysym.sym == SDLK_p && event.key.keysym.mod & KMOD_LCTRL) {
-					if (ortho) {
-						projection = perspective;
-					}
-					else
-					{
-						projection = orthogonal;
-					}
-					ortho = !ortho;
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_w:
+					buttonW = true;
+					break;
+				case SDLK_a:
+					buttonA = true;
+					break;
+				case SDLK_s:
+					buttonS = true;
+					break;
+				case SDLK_d:
+					buttonD = true;
+					break;
+				default:
+					break;
+				}
+			}
+			else if (event.type == SDL_KEYUP) {
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_w:
+					buttonW = false;
+					break;
+				case SDLK_a:
+					buttonA = false;
+					break;
+				case SDLK_s:
+					buttonS = false;
+					break;
+				case SDLK_d:
+					buttonD = false;
+					break;
+				default:
+					break;
 				}
 			}
 		}
@@ -184,12 +213,26 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		glClear(GL_COLOR_BUFFER_BIT);
 		time += delta;
 
+		if (buttonW) {
+			camera.translate(glm::vec3(0.0f, 0.0f, -2.0f * delta));
+		}
+		if (buttonA) {
+			camera.translate(glm::vec3(-2.0f * delta, 0.0f, 0.0f));
+		}
+		if (buttonS) {
+			camera.translate(glm::vec3(0.0f, 0.0f, 2.0f * delta));
+		}
+		if (buttonD) {
+			camera.translate(glm::vec3(2.0f * delta, 0.0f, 0.0f));
+		}
+		camera.update();
+
 		if (colorUniformLocation != -1) {
 			//glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
 		}
 
 		model = glm::rotate(model, 1 * delta, glm::vec3(0.0f, 1.0f, 0.0f));
-		modelViewProj = projection * view * model;
+		modelViewProj = camera.getViewProj() * model;
 
 		// wire frame mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -210,7 +253,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		uint64_t counterElapse = endCounter - lastCounter;
 		delta = (float)counterElapse / (float)perfCounterFrequency;
 		uint32_t FPS = (uint32_t)((float)perfCounterFrequency / (float)counterElapse);
-		std::cout << "FPS: " << FPS << std::endl;
+		//std::cout << "FPS: " << FPS << std::endl;
 		lastCounter = endCounter;
 	}
 

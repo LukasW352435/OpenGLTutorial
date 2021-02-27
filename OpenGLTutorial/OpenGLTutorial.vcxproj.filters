@@ -113,6 +113,9 @@
     <ClInclude Include="glm\vector_relational.hpp">
       <Filter>libs</Filter>
     </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.frag">
