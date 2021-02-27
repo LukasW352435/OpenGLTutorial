@@ -40,6 +40,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	// 0 immediate updates
+	// 1 updates synchronized with the vertical retrace
+	// -1 adaptive vsync
+	SDL_GL_SetSwapInterval(-1);
 
 #ifdef _DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -129,10 +133,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	glm::mat4 model = glm::mat4(1);
 	model = glm::scale(model, glm::vec3(1.2f));
+	bool ortho = false;
 	// orthogonal projection
-	// glm::mat4 projection = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -10.0f, 100.0f);
+	glm::mat4 orthogonal = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -10.0f, 100.0f);
 	// perspective projection
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 perspective = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+	glm::mat4 projection = perspective;
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,0.0f,-5.0f));
 	glm::mat4 modelViewProj = projection * view * model;
 	int modelViewProjMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_modelViewProj");
@@ -151,6 +157,29 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	bool close = false;
 	while (!close)
 	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			if (event.type == SDL_QUIT) {
+				close = true;
+			}
+			else if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					close = true;
+				}
+				if (event.key.keysym.sym == SDLK_p && event.key.keysym.mod & KMOD_LCTRL) {
+					if (ortho) {
+						projection = perspective;
+					}
+					else
+					{
+						projection = orthogonal;
+					}
+					ortho = !ortho;
+				}
+			}
+		}
+
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		time += delta;
@@ -177,19 +206,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 		SDL_GL_SwapWindow(window);
 
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			if (event.type == SDL_QUIT) {
-				close = true;
-			}
-		}
-
 		uint64_t endCounter = SDL_GetPerformanceCounter();
 		uint64_t counterElapse = endCounter - lastCounter;
 		delta = (float)counterElapse / (float)perfCounterFrequency;
 		uint32_t FPS = (uint32_t)((float)perfCounterFrequency / (float)counterElapse);
-		//std::cout << "FPS: " << FPS << std::endl;
+		std::cout << "FPS: " << FPS << std::endl;
 		lastCounter = endCounter;
 	}
 
