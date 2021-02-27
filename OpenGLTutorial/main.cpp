@@ -17,7 +17,7 @@
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
-#include "camera.h"
+#include "floating_camera.h"
 
 void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParm) {
 	std::cout << "[OpenGL Error] " << message << std::endl;
@@ -45,6 +45,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	// 1 updates synchronized with the vertical retrace
 	// -1 adaptive vsync
 	SDL_GL_SetSwapInterval(-1);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 #ifdef _DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
@@ -135,7 +136,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	glm::mat4 model = glm::mat4(1);
 	model = glm::scale(model, glm::vec3(1.2f));
 
-	Camera camera(90, 800.0f, 600.0f);
+	FloatingCamera camera(90, 800.0f, 600.0f);
 	camera.translate(glm::vec3(0.0f, 0.0f, 5.0f));
 	camera.update();
 
@@ -153,11 +154,14 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	}
 
 	float time = 0;
+	float cameraSpeed = 6.0f;
 	bool close = false;
 	bool buttonW = false;
 	bool buttonS = false;
 	bool buttonA = false;
 	bool buttonD = false;
+	bool buttonSpace = false;
+	bool buttonShift = false;
 	while (!close)
 	{
 		SDL_Event event;
@@ -184,6 +188,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 				case SDLK_d:
 					buttonD = true;
 					break;
+				case SDLK_SPACE:
+					buttonSpace = true;
+					break;
+				case SDLK_LSHIFT:
+					buttonShift = true;
+					break;
 				default:
 					break;
 				}
@@ -203,9 +213,18 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 				case SDLK_d:
 					buttonD = false;
 					break;
+				case SDLK_SPACE:
+					buttonSpace = false;
+					break;
+				case SDLK_LSHIFT:
+					buttonShift = false;
+					break;
 				default:
 					break;
 				}
+			}
+			else if (event.type == SDL_MOUSEMOTION) {
+				camera.onMouseMoved(event.motion.xrel, event.motion.yrel);
 			}
 		}
 
@@ -214,16 +233,22 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		time += delta;
 
 		if (buttonW) {
-			camera.translate(glm::vec3(0.0f, 0.0f, -2.0f * delta));
+			camera.moveFront(cameraSpeed * delta);
 		}
 		if (buttonA) {
-			camera.translate(glm::vec3(-2.0f * delta, 0.0f, 0.0f));
+			camera.moveSideways(-cameraSpeed * delta);
 		}
 		if (buttonS) {
-			camera.translate(glm::vec3(0.0f, 0.0f, 2.0f * delta));
+			camera.moveFront(-cameraSpeed * delta);
 		}
 		if (buttonD) {
-			camera.translate(glm::vec3(2.0f * delta, 0.0f, 0.0f));
+			camera.moveSideways(cameraSpeed * delta);
+		}
+		if (buttonShift) {
+			camera.moveUp(-cameraSpeed* delta);
+		}
+		if (buttonSpace) {
+			camera.moveUp(cameraSpeed * delta);
 		}
 		camera.update();
 
