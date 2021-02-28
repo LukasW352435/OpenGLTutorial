@@ -149,16 +149,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	glm::mat4 modelViewProj = camera.getViewProj() * model;
 	int modelViewProjMatrixLocation = glGetUniformLocation(shader.getShaderId(), "u_modelViewProj");
-
-	int colorUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_color");
-	if (colorUniformLocation != -1) {
-		glUniform4f(colorUniformLocation, 1, 0, 1, 1);
-	}
-
-	int textureUniformLocation = glGetUniformLocation(shader.getShaderId(), "u_texture");
-	if (textureUniformLocation != -1) {
-		glUniform1i(textureUniformLocation, 0);
-	}
+	int modelViewLocation = glGetUniformLocation(shader.getShaderId(), "u_modelView");
+	int invModelViewLocation = glGetUniformLocation(shader.getShaderId(), "u_invModelView");
 
 	float time = 0;
 	float cameraSpeed = 6.0f;
@@ -271,12 +263,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		}
 		camera.update();
 
-		if (colorUniformLocation != -1) {
-			//glUniform4f(colorUniformLocation, sinf(time)*sinf(time), 1, 1, 1);
-		}
-
 		model = glm::rotate(model, 1 * delta, glm::vec3(0.0f, 1.0f, 0.0f));
 		modelViewProj = camera.getViewProj() * model;
+		glm::mat4 modelView = camera.getView() * model;
+		glm::mat4 invModelView = glm::transpose(glm::inverse(modelView));
 
 		// wire frame mode
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -284,6 +274,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 		vertexBuffer.bind();
 		indexBuffer.bind();
+		if (modelViewLocation != -1) {
+			glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelView[0][0]);
+		}
+		if (invModelViewLocation != -1) {
+			glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]);
+		}
 		if (modelViewProjMatrixLocation != -1) {
 			glUniformMatrix4fv(modelViewProjMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]);
 		}
