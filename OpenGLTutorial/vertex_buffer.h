@@ -3,17 +3,8 @@
 #include <cstdint>
 
 struct Vertex {
-	float x;
-	float y;
-	float z;
-
-	float u;
-	float v;
-
-	float red;
-	float green;
-	float blue;
-	float alpha;
+	glm::vec3 positon;
+	glm::vec3 normal;
 };
 
 struct VertexBuffer {
@@ -26,13 +17,9 @@ struct VertexBuffer {
 		glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), data, GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, x));
-
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, positon));
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, u));
-
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, red));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, normal));
 
 		glBindVertexArray(0);
 	}

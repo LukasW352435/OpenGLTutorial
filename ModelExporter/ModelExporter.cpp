@@ -13,16 +13,22 @@ struct Position {
 };
 
 std::vector<Position> positions;
+std::vector<Position> normals;
 std::vector<uint32_t> indices;
 
 void processMesh(aiMesh* mesh, const aiScene* scene) {
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
-        Position vertex;
-        vertex.x = mesh->mVertices[i].x;
-        vertex.y = mesh->mVertices[i].y;
-        vertex.z = mesh->mVertices[i].z;
-        positions.push_back(vertex);
+        Position position;
+        position.x = mesh->mVertices[i].x;
+        position.y = mesh->mVertices[i].y;
+        position.z = mesh->mVertices[i].z;
+        positions.push_back(position);
+        Position normal;
+        normal.x = mesh->mNormals[i].x;
+        normal.y = mesh->mNormals[i].y;
+        normal.z = mesh->mNormals[i].z;
+        normals.push_back(normal);
     }
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
@@ -62,7 +68,7 @@ int main(int argc, char** argv)
     }
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(argv[argc - 1], aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality);
+    const aiScene* scene = importer.ReadFile(argv[argc - 1], aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE, !scene->mRootNode) {
         std::cout << "Error while loading model with assimp: " << importer.GetErrorString() << std::endl;
         return EXIT_FAILURE;
@@ -86,6 +92,10 @@ int main(int argc, char** argv)
         output.write((char*)&positions[i].x, sizeof(float));
         output.write((char*)&positions[i].y, sizeof(float));
         output.write((char*)&positions[i].z, sizeof(float));
+
+        output.write((char*)&normals[i].x, sizeof(float));
+        output.write((char*)&normals[i].y, sizeof(float));
+        output.write((char*)&normals[i].z, sizeof(float));
     }
     for (uint64_t i = 0; i < numIndices; i++)
     {

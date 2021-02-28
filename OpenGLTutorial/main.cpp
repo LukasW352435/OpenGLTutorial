@@ -93,13 +93,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	for (uint64_t i = 0; i < numVertices; i++)
 	{
 		Vertex vertex;
-		input.read((char*)&vertex.x, sizeof(float));
-		input.read((char*)&vertex.y, sizeof(float));
-		input.read((char*)&vertex.z, sizeof(float));
-		vertex.red = 1;
-		vertex.green = 1;
-		vertex.blue = 1;
-		vertex.alpha = 1;
+		input.read((char*)&vertex.positon.x, sizeof(float));
+		input.read((char*)&vertex.positon.y, sizeof(float));
+		input.read((char*)&vertex.positon.z, sizeof(float));
+		input.read((char*)&vertex.normal.x, sizeof(float));
+		input.read((char*)&vertex.normal.y, sizeof(float));
+		input.read((char*)&vertex.normal.z, sizeof(float));
 		vertices.push_back(vertex);
 	}
 	for (uint64_t i = 0; i < numIndices; i++)
