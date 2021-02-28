@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <fstream>
 #define GLEW_STATIC
 #include <GL/glew.h>
 #define SDL_MAIN_HANDLED
@@ -75,35 +77,41 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	glDebugMessageCallback(openGLDebugCallback, nullptr);
 #endif // _DEBUG
 
-	Vertex vertices[] = {
-		Vertex{
-			-0.5, -0.5, 0, 
-			0, 0, 
-			1, 0, 0, 1},
-		Vertex{
-			-0.5, 0.5, 0,
-			0, 1,
-			0, 1, 0, 1},
-		Vertex{
-			0.5, -0.5, 0, 
-			1, 0,
-			0, 0, 1, 1},
-		Vertex{
-			0.5, 0.5, 0, 
-			1, 1,
-			1, 0, 0, 1},
-	};
-	uint32_t numVertices = 4;
+	std::vector<Vertex> vertices;
+	uint64_t numVertices = 0;
 
-	uint32_t indices[] = {
-		0, 1, 2,
-		1, 2, 3
-	};
-	uint32_t numIndices = 6;
+	std::vector<uint32_t> indices;
+	uint64_t numIndices = 0;
 
-	IndexBuffer indexBuffer(indices, numIndices, sizeof(uint32_t));
+	std::ifstream input = std::ifstream("C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\monkey.bmf", std::ios::in | std::ios::binary);
+	if (!input.is_open()) {
+		std::cout << "Error reading model!" << std::endl;
+		return EXIT_FAILURE;
+	}
+	input.read((char*)&numVertices, sizeof(uint64_t));
+	input.read((char*)&numIndices, sizeof(uint64_t));
+	for (uint64_t i = 0; i < numVertices; i++)
+	{
+		Vertex vertex;
+		input.read((char*)&vertex.x, sizeof(float));
+		input.read((char*)&vertex.y, sizeof(float));
+		input.read((char*)&vertex.z, sizeof(float));
+		vertex.red = 1;
+		vertex.green = 1;
+		vertex.blue = 1;
+		vertex.alpha = 1;
+		vertices.push_back(vertex);
+	}
+	for (uint64_t i = 0; i < numIndices; i++)
+	{
+		uint32_t index;
+		input.read((char*)&index, sizeof(uint32_t));
+		indices.push_back(index);
+	}
 
-	VertexBuffer vertexBuffer(vertices, numVertices);
+	IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(uint32_t));
+
+	VertexBuffer vertexBuffer(vertices.data(), numVertices);
 
 	int32_t textureWidth = 0;
 	int32_t textureHeight = 0;
