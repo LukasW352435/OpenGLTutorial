@@ -170,6 +170,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	bool buttonD = false;
 	bool buttonSpace = false;
 	bool buttonShift = false;
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 	while (!close)
 	{
 		SDL_Event event;
@@ -202,6 +204,9 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 				case SDLK_LSHIFT:
 					buttonShift = true;
 					break;
+				case SDLK_TAB:
+					SDL_SetRelativeMouseMode(SDL_FALSE);
+					break;
 				default:
 					break;
 				}
@@ -232,12 +237,19 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 				}
 			}
 			else if (event.type == SDL_MOUSEMOTION) {
-				camera.onMouseMoved(event.motion.xrel, event.motion.yrel);
+				if (SDL_GetRelativeMouseMode()) {
+					camera.onMouseMoved(event.motion.xrel, event.motion.yrel);
+				}
+			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+				}
 			}
 		}
 
 		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		time += delta;
 
 		if (buttonW) {

@@ -10,6 +10,7 @@ uniform vec4 u_color;
 
 void main()
 {
-    vec4 texColor = texture(u_texture, v_texCoord);
-    f_color = texColor * u_color;
+    //vec4 texColor = texture(u_texture, v_texCoord);
+    //f_color = texColor * u_color;
+    f_color = v_color;
 }
