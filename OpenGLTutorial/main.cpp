@@ -19,6 +19,7 @@
 #include "vertex_buffer.h"
 #include "index_buffer.h"
 #include "shader.h"
+#include "mesh.h"
 #include "floating_camera.h"
 
 void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParm) {
@@ -76,42 +77,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(openGLDebugCallback, nullptr);
 #endif // _DEBUG
-
-	std::vector<Vertex> vertices;
-	uint64_t numVertices = 0;
-
-	std::vector<uint32_t> indices;
-	uint64_t numIndices = 0;
-
-	std::ifstream input = std::ifstream("C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\monkey.bmf", std::ios::in | std::ios::binary);
-	if (!input.is_open()) {
-		std::cout << "Error reading model!" << std::endl;
-		return EXIT_FAILURE;
-	}
-	input.read((char*)&numVertices, sizeof(uint64_t));
-	input.read((char*)&numIndices, sizeof(uint64_t));
-	for (uint64_t i = 0; i < numVertices; i++)
-	{
-		Vertex vertex;
-		input.read((char*)&vertex.positon.x, sizeof(float));
-		input.read((char*)&vertex.positon.y, sizeof(float));
-		input.read((char*)&vertex.positon.z, sizeof(float));
-		input.read((char*)&vertex.normal.x, sizeof(float));
-		input.read((char*)&vertex.normal.y, sizeof(float));
-		input.read((char*)&vertex.normal.z, sizeof(float));
-		vertices.push_back(vertex);
-	}
-	for (uint64_t i = 0; i < numIndices; i++)
-	{
-		uint32_t index;
-		input.read((char*)&index, sizeof(uint32_t));
-		indices.push_back(index);
-	}
-
-	IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(uint32_t));
-
-	VertexBuffer vertexBuffer(vertices.data(), numVertices);
-
+	
 	int32_t textureWidth = 0;
 	int32_t textureHeight = 0;
 	int32_t bitsPerPixel = 0;
@@ -135,6 +101,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	Shader shader("basic.vert", "basic.frag");
 	shader.bind();
+	Material material = {};
+	material.diffuse = { 0.4f, 0.2f, 0.1f };
+	material.specular = { 0.4f, 0.2f, 0.1f };
+	material.emissive = {};
+	material.shininess = 4.0f;
+	Mesh mesh("C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\monkey.bmf", material, &shader);
 	
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
 	uint64_t lastCounter = SDL_GetPerformanceCounter() ;
@@ -272,8 +244,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		vertexBuffer.bind();
-		indexBuffer.bind();
 		if (modelViewLocation != -1) {
 			glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelView[0][0]);
 		}
@@ -285,8 +255,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureId);
-		glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
-
+		mesh.render();
 		SDL_GL_SwapWindow(window);
 
 		uint64_t endCounter = SDL_GetPerformanceCounter();
