@@ -22,6 +22,9 @@
 #include "mesh.h"
 #include "floating_camera.h"
 
+#define MONKEY_FILE "C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\monkey.bmf"
+#define TREE_FILE "C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\tree01.bmf"
+
 void GLAPIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParm) {
 	std::cout << "[OpenGL Error] " << message << std::endl;
 }
@@ -101,19 +104,16 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 
 	Shader shader("basic.vert", "basic.frag");
 	shader.bind();
-	Material material = {};
-	material.diffuse = { 0.4f, 0.2f, 0.1f };
-	material.specular = { 0.4f, 0.2f, 0.1f };
-	material.emissive = {};
-	material.shininess = 4.0f;
-	Mesh mesh("C:\\Users\\Lukas\\source\\repos\\OpenGLTutorial\\models\\monkey.bmf", material, &shader);
+
+	Model monkey;
+	monkey.Init(MONKEY_FILE, &shader);
 	
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
 	uint64_t lastCounter = SDL_GetPerformanceCounter() ;
 	float delta = 0;
 
 	glm::mat4 model = glm::mat4(1);
-	model = glm::scale(model, glm::vec3(1.2f));
+	model = glm::scale(model, glm::vec3(1.0f));
 
 	FloatingCamera camera(90, 800.0f, 600.0f);
 	camera.translate(glm::vec3(0.0f, 0.0f, 5.0f));
@@ -255,7 +255,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureId);
-		mesh.render();
+		monkey.render();
 		SDL_GL_SwapWindow(window);
 
 		uint64_t endCounter = SDL_GetPerformanceCounter();
